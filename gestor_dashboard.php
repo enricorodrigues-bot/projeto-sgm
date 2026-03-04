@@ -1,65 +1,83 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['user_perfil'] !== 'gestor') {
+    header("Location: login.php");
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg bg-primary">
-  <div class="container-fluid">
-    <a class="navbar-brand text-light" href="#">SGM - Painel de Controle</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
-
-      </ul>
-      <form class="d-flex" role="search">
-         Olá, Maria Solicitante
-        <button class="btn btn-outline-dark" type="submit">Sair</button>
-      </form>
-    </div>
-  </div>
-</nav>
-
-
-<main class="container mt-4">
-    <h1 class="fs-4">Minhas Solicitações</h1>
+    <title>SGM - Painel do Gestor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand">SGM | Gestão Administrativa</span>
+            <div class="text-white">
+                <span>Olá, <?= $_SESSION['user_nome'] ?></span> | 
+                <a href="api/logout.php" class="btn btn-sm btn-outline-light">Sair</a>
+            </div>
+        </div>
+    </nav>
 
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Novas Solicitações</h5>
+                        <h2 id="qtdAbertos">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Em Atendimento</h5>
+                        <h2 id="qtdExecucao">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-danger shadow">
+                    <div class="card-body">
+                        <h5 class="card-title">Críticos / Urgentes</h5>
+                        <h2 id="qtdUrgentes">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col-12 text-center mt-4">
+                <a href="gestor_chamados.php" class="btn btn-lg btn-secondary">
+                    <i class="bi bi-list-task"></i> Gerenciar Todos os Chamados
+                </a>
+                <a href="gestor_locais.php" class="btn btn-lg btn-outline-primary ms-2">
+                    <i class="bi bi-geo-alt"></i> Configurar Ambientes
+                </a>
+            </div>
+        </div>
+    </div>
 
-    <table class="table mt-5 border shadow-lg">
-    <thead>
-        <tr>
-        <th scope="col">Id</th>
-        <th scope="col">Local</th>
-        <th scope="col">Descrição</th>
-        <th scope="col">Data</th>
-        <th scope="col">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-        <th scope="row">1</th>
-        <td>Bloco Administrativo - Recepção</td>
-        <td>Vazando agua pela lampada </td>
-        <td>04/02/2026</td>
-        <td> fechado </td>
-        </tr>
+    <script>
+        async function atualizarResumo() {
+            const res = await fetch('api/dashboard_gestor.php');
+            const dados = await res.json();
+            
+            document.getElementById('qtdAbertos').innerText = dados.abertos || 0;
+            document.getElementById('qtdExecucao').innerText = dados.em_execucao || 0;
+            document.getElementById('qtdUrgentes').innerText = dados.urgentes || 0;
+        }
 
-        
-    </tbody>
-    </table>
-
-</main>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        atualizarResumo();
+        // Atualiza a cada 30 segundos
+        setInterval(atualizarResumo, 30000);
+    </script>
 </body>
 </html>
